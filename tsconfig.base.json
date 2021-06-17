@@ -10,6 +10,7 @@
         "experimentalDecorators": true,
         "declaration": true,
         "isolatedModules": false,
+        "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
         "module": "esnext",
         "moduleResolution": "node",
         "noImplicitAny": false,
@@ -30,9 +31,10 @@
         "target": "esnext"
     },
     "exclude": [
+        "dist",
+        "test",
         "node_modules",
-        "**/*.spec.ts",
-        "**/__tests__/*"
+        "**/*.spec.ts"
     ],
     "include": [
         "src/**/*"
