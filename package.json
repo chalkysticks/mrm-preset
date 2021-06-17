@@ -1,0 +1,27 @@
+{
+    "author": "ChalkySticks LLC",
+    "bugs": {
+        "url": "https://github.com/chalkysticks/mrm-preset/issues"
+    },
+    "dependencies": { },
+    "description": "Configuration libraries.",
+    "devDependencies": { },
+    "homepage": "https://github.com/chalkysticks/mrm-preset#readme",
+    "keywords": [
+        "chalkysticks",
+        "billiards",
+        "pool",
+        "sdk"
+    ],
+    "license": "MIT",
+    "name": "@chalkysticks/mrm-preset",
+    "publishConfig": {
+        "access": "public",
+        "tag": "latest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/chalkysticks/mrm-preset.git"
+    },
+    "version": "1.0.0"
+}
