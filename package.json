@@ -3,9 +3,19 @@
     "bugs": {
         "url": "https://github.com/chalkysticks/mrm-preset/issues"
     },
-    "dependencies": { },
     "description": "Configuration libraries.",
-    "devDependencies": { },
+    "devDependencies": {
+        "husky": "^6.0.0"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/mjs/index.js",
+            "require": "./dist/cjs/index.js"
+        }
+    },
+    "files": [
+        "dist/**/*"
+    ],
     "homepage": "https://github.com/chalkysticks/mrm-preset#readme",
     "keywords": [
         "chalkysticks",
@@ -14,6 +24,8 @@
         "sdk"
     ],
     "license": "MIT",
+    "module": "dist/mjs/index.js",
+    "main": "dist/cjs/index.js",
     "name": "@chalkysticks/mrm-preset",
     "publishConfig": {
         "access": "public",
@@ -23,5 +35,10 @@
         "type": "git",
         "url": "git+https://github.com/chalkysticks/mrm-preset.git"
     },
-    "version": "1.0.0"
+    "types": "dist/mjs/index.d.ts",
+    "version": "1.0.0",
+    "scripts": {
+        "prepare": "husky install",
+        "test": ""
+    }
 }
