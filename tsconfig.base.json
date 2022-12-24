@@ -12,7 +12,6 @@
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
         "incremental": true,
-        "inlineSourceMap": true,
         "isolatedModules": false,
         "lib": [
             "esnext",
