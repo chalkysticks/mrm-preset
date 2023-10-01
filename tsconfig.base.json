@@ -49,7 +49,6 @@
         "target": "es2020",
         "traceResolution": false,
         "typeRoots": ["node_modules/@types", "types"],
-        "types": ["node"],
 		"useDefineForClassFields": false
     },
     "exclude": ["test/**/*.ts", "test"],
