@@ -11,6 +11,7 @@
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
+		"ignoreDeprecations": "5.0",
         "incremental": true,
         "inlineSourceMap": true,
         "isolatedModules": false,
