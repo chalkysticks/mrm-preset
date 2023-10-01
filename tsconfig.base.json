@@ -46,7 +46,6 @@
         "strict": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": false,
-        "suppressImplicitAnyIndexErrors": true,
         "target": "es2020",
         "traceResolution": false,
         "typeRoots": ["node_modules/@types", "types"],
