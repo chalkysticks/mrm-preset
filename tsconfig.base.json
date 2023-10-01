@@ -6,38 +6,57 @@
     "compilerOptions": {
         "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
         "declaration": true,
+        "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "incremental": true,
+        "inlineSourceMap": true,
         "isolatedModules": false,
-        "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+        "lib": [
+            "es2017",
+            "dom",
+            "dom.iterable",
+            "scripthost"
+        ],
+        "listEmittedFiles": false,
+        "listFiles": false,
         "module": "esnext",
         "moduleResolution": "node",
-        "noImplicitAny": false,
-        "noImplicitThis": false,
-        "outDir": "dist",
+        "noFallthroughCasesInSwitch": false,
+        "noImplicitReturns": false,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "outDir": "build",
         "paths": {
-            "*": ["types/*"],
-            "@/*": ["src/*"]
+            "*": [
+                "types/*"
+            ],
+            "@/*": [
+                "src/*"
+            ]
         },
         "preserveConstEnums": true,
         "pretty": true,
-        "strictNullChecks": true,
-        "suppressImplicitAnyIndexErrors": true,
         "removeComments": true,
+        "resolveJsonModule": true,
+		"rootDir": "src",
         "skipLibCheck": true,
-        "strict": true,
         "sourceMap": true,
-        "target": "esnext"
+        "strict": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": false,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "es2017",
+        "traceResolution": false,
+        "typeRoots": ["node_modules/@types", "types"],
+        "types": ["node"],
+		"useDefineForClassFields": false
     },
-    "exclude": [
-        "dist",
-        "test",
-        "node_modules",
-        "**/*.spec.ts"
-    ],
+    "exclude": ["test/**/*.ts", "test"],
     "include": [
-        "src/**/*"
+        "src/**/*.ts"
     ],
     "scripts": {
         "prepublish": "tsc"
