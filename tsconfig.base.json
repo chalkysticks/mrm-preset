@@ -15,7 +15,7 @@
         "inlineSourceMap": true,
         "isolatedModules": false,
         "lib": [
-            "es2017",
+            "es2020",
             "dom",
             "dom.iterable",
             "scripthost"
@@ -48,7 +48,7 @@
         "strictNullChecks": true,
         "strictPropertyInitialization": false,
         "suppressImplicitAnyIndexErrors": true,
-        "target": "es2017",
+        "target": "es2020",
         "traceResolution": false,
         "typeRoots": ["node_modules/@types", "types"],
         "types": ["node"],
