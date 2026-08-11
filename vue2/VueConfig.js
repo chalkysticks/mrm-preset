@@ -88,6 +88,23 @@ function createStyleConfiguration(sassData) {
 }
 
 /**
+ * Create project aliases with one absolute Vue runtime shared by every
+ * workspace-sourced package compiled into the application.
+ *
+ * @param Object options
+ * @return Object
+ */
+function createAliases(options) {
+	const aliases = Object.assign({}, options.aliases || {});
+
+	aliases['vue$'] = require.resolve('vue/dist/vue.runtime.esm.js', {
+		paths: [options.projectRoot],
+	});
+
+	return aliases;
+}
+
+/**
  * Create the webpack-chain callback shared by every Vue 2 project.
  *
  * @param Function | undefined configureProjectChain
@@ -132,7 +149,7 @@ function createWebpackConfiguration(options) {
 		},
 		plugins: options.plugins || [],
 		resolve: {
-			alias: options.aliases || {},
+			alias: createAliases(options),
 			fallback: createNodeFallbacks(options.projectRoot, options.fallbacks),
 			mainFields: options.mainFields || Config.DEFAULT_MAIN_FIELDS,
 		},

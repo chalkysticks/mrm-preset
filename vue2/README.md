@@ -6,6 +6,7 @@ This entry point owns the build behavior shared by the maintained Vue 2 projects
 - library-only dependency externals;
 - Node browser fallbacks;
 - Sass loader defaults;
+- one project-root Vue runtime for workspace-sourced packages;
 - asset-resource rule construction; and
 - workspace-first package resolution.
 
