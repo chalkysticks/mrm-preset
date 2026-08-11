@@ -26,7 +26,7 @@
     },
     "scripts": {
         "prepare": "husky install",
-        "test": ""
+        "test": "node --test test/*.spec.js"
     },
-    "version": "1.2.4"
+    "version": "1.2.5"
 }
