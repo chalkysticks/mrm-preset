@@ -111,4 +111,5 @@ module.exports = {
 	createAssetResourceRule: createAssetResourceRule,
 	createLibraryExternals: createLibraryExternals,
 	createNodeFallbacks: createNodeFallbacks,
+	isLibraryBuild: isLibraryBuild,
 };

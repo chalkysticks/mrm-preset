@@ -22,13 +22,18 @@ const { createAssetResourceRule, createVue2Config } = require('../vue2');
 function testVue2ConfigurationFactory() {
 	const originalArguments = process.argv;
 	const projectRoot = fileSystem.mkdtempSync(path.join(operatingSystem.tmpdir(), 'chalky-vue2-preset-'));
+	const sassLoaderPackagePath = path.join(projectRoot, 'node_modules/sass-loader/package.json');
 	const vueRuntimePath = path.join(projectRoot, 'node_modules/vue/dist/vue.runtime.esm.js');
 	let projectChainConfigured = false;
 
 	fileSystem.mkdirSync(path.dirname(vueRuntimePath), {
 		recursive: true,
 	});
+	fileSystem.mkdirSync(path.dirname(sassLoaderPackagePath), {
+		recursive: true,
+	});
 	fileSystem.writeFileSync(path.join(projectRoot, 'package.json'), '{"version":"1.0.0"}\n');
+	fileSystem.writeFileSync(sassLoaderPackagePath, '{"version":"10.0.0"}\n');
 	fileSystem.writeFileSync(vueRuntimePath, 'module.exports = {};\n');
 	process.argv = ['node', 'vue-cli-service', 'build', '--target', 'lib'];
 
@@ -37,16 +42,48 @@ function testVue2ConfigurationFactory() {
 			aliases: {
 				example: '/example',
 			},
+			cacheName: 'example-profile',
 			chainWebpack: configureProjectChain,
 			externals: ['vue'],
 			fallbacks: {
 				util: false,
 			},
 			moduleRules: [createAssetResourceRule(['glb', 'gltf'])],
+			optimization: {
+				minimize: true,
+			},
+			output: {
+				globalObject: 'self',
+			},
 			projectRoot: projectRoot,
+			productionSourceMap: false,
 			sassData: '@import "mixins";',
+			sassImporter: 'example-importer',
 		});
 		const deletedRules = [];
+		const extractedLibraryStyleConfiguration = createVue2Config({
+			extractStyles: true,
+			fallbacks: {
+				util: false,
+			},
+			projectRoot: projectRoot,
+		});
+
+		process.argv = ['node', 'vue-cli-service', 'build'];
+
+		const applicationStyleConfiguration = createVue2Config({
+			fallbacks: {
+				util: false,
+			},
+			projectRoot: projectRoot,
+		});
+		const injectedStyleConfiguration = createVue2Config({
+			extractStyles: false,
+			fallbacks: {
+				util: false,
+			},
+			projectRoot: projectRoot,
+		});
 		const webpackChain = {
 			module: {
 				rules: {
@@ -77,14 +114,22 @@ function testVue2ConfigurationFactory() {
 		configuration.chainWebpack(webpackChain);
 
 		assert.deepEqual(deletedRules, ['eslint']);
+		assert.equal(configuration.configureWebpack.cache.name, 'example-profile');
 		assert.equal(projectChainConfigured, true);
 		assert.equal(configuration.configureWebpack.externals.vue, 'commonjs2 vue');
 		assert.equal(configuration.configureWebpack.module.rules[0].type, 'asset/resource');
+		assert.equal(configuration.configureWebpack.optimization.minimize, true);
+		assert.equal(configuration.configureWebpack.output.globalObject, 'self');
 		assert.equal(configuration.configureWebpack.resolve.alias.example, '/example');
 		assert.equal(configuration.configureWebpack.resolve.alias['vue$'], fileSystem.realpathSync(vueRuntimePath));
 		assert.equal(configuration.configureWebpack.resolve.fallback.util, false);
 		assert.equal(configuration.css.extract, false);
-		assert.equal(configuration.css.loaderOptions.scss.prependData, '@import "mixins";');
+		assert.equal(configuration.css.loaderOptions.sass.sassOptions.importer, 'example-importer');
+		assert.equal(configuration.css.loaderOptions.scss.additionalData, '@import "mixins";');
+		assert.equal(extractedLibraryStyleConfiguration.css.extract, true);
+		assert.equal(Object.prototype.hasOwnProperty.call(applicationStyleConfiguration.css, 'extract'), false);
+		assert.equal(injectedStyleConfiguration.css.extract, false);
+		assert.equal(configuration.productionSourceMap, false);
 	} finally {
 		process.argv = originalArguments;
 		fileSystem.rmSync(projectRoot, {

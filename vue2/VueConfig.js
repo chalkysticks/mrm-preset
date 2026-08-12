@@ -7,8 +7,9 @@
  */
 
 const Config = require('./Config');
+const fileSystem = require('fs');
 const path = require('path');
-const { createLibraryExternals, createNodeFallbacks } = require('./Webpack');
+const { createLibraryExternals, createNodeFallbacks, isLibraryBuild } = require('./Webpack');
 
 /**
  * Create the development-server defaults with project-specific overrides.
@@ -57,34 +58,84 @@ function createDevelopmentServer(overrides) {
 }
 
 /**
- * Create the Vue CLI Sass configuration when a shared prelude is supplied.
+ * Resolve the Sass loader property used to inject shared source data.
  *
- * @param string | undefined sassData
- * @return Object
+ * @param string projectRoot
+ * @return string
  */
-function createStyleConfiguration(sassData) {
-	if (!sassData) {
-		return {
-			extract: false,
-		};
+function resolveSassDataProperty(projectRoot) {
+	const packagePath = require.resolve('sass-loader/package.json', {
+		paths: [projectRoot],
+	});
+	const packageInformation = JSON.parse(fileSystem.readFileSync(packagePath, 'utf8'));
+	const majorVersion = Number.parseInt(packageInformation.version.split('.')[0], 10);
+
+	return majorVersion >= 9 ? 'additionalData' : 'prependData';
+}
+
+/**
+ * Resolve CSS extraction without changing Vue CLI's application defaults.
+ * Library builds preserve the existing injected-style package contract unless
+ * a project explicitly selects another delivery model.
+ *
+ * @param Object options
+ * @return boolean | undefined
+ */
+function resolveStyleExtraction(options) {
+	if (options.extractStyles !== undefined) {
+		return options.extractStyles;
 	}
 
-	return {
-		extract: false,
-		loaderOptions: {
-			scss: {
-				prependData: sassData,
+	if (isLibraryBuild()) {
+		return false;
+	}
 
-				// Newer sass-loader releases may use the modern-compiler API here.
-				// The current Vue 2 projects remain on sass-loader 8, so the shared
-				// preset silences only the known legacy API and import warnings.
-				sassOptions: {
-					quietDeps: true,
-					silenceDeprecations: ['import', 'legacy-js-api'],
-				},
-			},
+	return undefined;
+}
+
+/**
+ * Create the Vue CLI Sass configuration when a shared prelude is supplied.
+ *
+ * @param Object options
+ * @return Object
+ */
+function createStyleConfiguration(options) {
+	const configuration = {};
+	const extractStyles = resolveStyleExtraction(options);
+
+	if (extractStyles !== undefined) {
+		configuration.extract = extractStyles;
+	}
+
+	if (!options.sassData) {
+		return configuration;
+	}
+
+	const dataProperty = resolveSassDataProperty(options.projectRoot);
+	const sassOptions = {
+		quietDeps: true,
+		silenceDeprecations: ['import', 'legacy-js-api'],
+	};
+	const scssLoaderOptions = {
+		sassOptions: sassOptions,
+	};
+
+	if (options.sassImporter) {
+		sassOptions.importer = options.sassImporter;
+	}
+
+	scssLoaderOptions[dataProperty] = options.sassData;
+
+	configuration.loaderOptions = {
+		sass: {
+			sassOptions: sassOptions,
+		},
+		scss: {
+			...scssLoaderOptions,
 		},
 	};
+
+	return configuration;
 }
 
 /**
@@ -140,6 +191,7 @@ function createWebpackConfiguration(options) {
 			buildDependencies: {
 				config: [path.join(options.projectRoot, 'vue.config.js')],
 			},
+			name: options.cacheName,
 			type: 'filesystem',
 		},
 		devServer: createDevelopmentServer(options.developmentServer),
@@ -157,6 +209,14 @@ function createWebpackConfiguration(options) {
 
 	if (options.snapshot) {
 		configuration.snapshot = options.snapshot;
+	}
+
+	if (options.optimization) {
+		configuration.optimization = options.optimization;
+	}
+
+	if (options.output) {
+		configuration.output = options.output;
 	}
 
 	return configuration;
@@ -177,7 +237,7 @@ function createVue2Config(options) {
 	const configuration = {
 		chainWebpack: createWebpackChain(options.chainWebpack),
 		configureWebpack: createWebpackConfiguration(options),
-		css: createStyleConfiguration(options.sassData),
+		css: createStyleConfiguration(options),
 		publicPath: options.publicPath || process.env.VUE_APP_PUBLIC_PATH || Config.DEFAULT_PUBLIC_PATH,
 
 		// Projects that need dependency transpilation can explicitly supply true
@@ -187,6 +247,10 @@ function createVue2Config(options) {
 
 	if (options.outputDirectory) {
 		configuration.outputDir = options.outputDirectory;
+	}
+
+	if (options.productionSourceMap !== undefined) {
+		configuration.productionSourceMap = options.productionSourceMap;
 	}
 
 	return configuration;
