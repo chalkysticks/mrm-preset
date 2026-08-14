@@ -7,7 +7,39 @@
  */
 
 const fileSystem = require('fs');
+const moduleSystem = require('module');
 const path = require('path');
+
+/**
+ * Package manifest filename used to identify installed package roots.
+ *
+ * @type string
+ */
+const PACKAGE_MANIFEST_FILENAME = 'package.json';
+
+/**
+ * Resolve the root directory of an installed package without requiring its
+ * package manifest to be exposed through the package exports map.
+ *
+ * @param string packageName
+ * @param string projectRoot
+ * @return string
+ */
+function resolveInstalledPackageRoot(packageName, projectRoot) {
+	const projectRequire = moduleSystem.createRequire(path.join(projectRoot, PACKAGE_MANIFEST_FILENAME));
+	const packageSearchPaths = projectRequire.resolve.paths(packageName) || [];
+
+	for (const packageSearchPath of packageSearchPaths) {
+		const packageRoot = path.join(packageSearchPath, packageName);
+		const packageManifestPath = path.join(packageRoot, PACKAGE_MANIFEST_FILENAME);
+
+		if (fileSystem.existsSync(packageManifestPath)) {
+			return fileSystem.realpathSync(packageRoot);
+		}
+	}
+
+	throw new Error(`Unable to resolve installed package "${packageName}" from "${projectRoot}".`);
+}
 
 /**
  * Resolve a package from a sibling workspace when its required build marker is
@@ -22,13 +54,7 @@ const path = require('path');
 function resolvePackageSurface(packageName, projectRoot, workspacePath, workspaceMarker) {
 	const workspaceRoot = path.resolve(projectRoot, workspacePath);
 	const workspaceAvailable = fileSystem.existsSync(path.join(workspaceRoot, workspaceMarker));
-	const packageRoot = workspaceAvailable
-		? workspaceRoot
-		: path.dirname(
-				require.resolve(`${packageName}/package.json`, {
-					paths: [projectRoot],
-				}),
-		  );
+	const packageRoot = workspaceAvailable ? workspaceRoot : resolveInstalledPackageRoot(packageName, projectRoot);
 
 	return {
 		packageRoot: packageRoot,
