@@ -29,7 +29,6 @@ const RESTRICTED_PACKAGE_NAME = '@chalkysticks/restricted-exports-fixture';
 function testRestrictedPackageExportsResolution() {
 	const projectRoot = fileSystem.mkdtempSync(path.join(operatingSystem.tmpdir(), 'chalky-package-resolver-'));
 	const packageRoot = path.join(projectRoot, 'node_modules', RESTRICTED_PACKAGE_NAME);
-	const workspaceRoot = path.join(projectRoot, 'workspace');
 
 	fileSystem.mkdirSync(packageRoot, {
 		recursive: true,
@@ -50,12 +49,10 @@ function testRestrictedPackageExportsResolution() {
 	);
 
 	try {
-		const packageSurface = resolvePackageSurface(RESTRICTED_PACKAGE_NAME, projectRoot, 'workspace', 'build/index.js');
+		const packageSurface = resolvePackageSurface(RESTRICTED_PACKAGE_NAME, projectRoot);
 
 		assert.deepEqual(packageSurface, {
 			packageRoot: fileSystem.realpathSync(packageRoot),
-			workspaceAvailable: false,
-			workspaceRoot: workspaceRoot,
 		});
 	} finally {
 		fileSystem.rmSync(projectRoot, {

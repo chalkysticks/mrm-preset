@@ -6,7 +6,7 @@
  * @project ChalkySticks MRM Preset
  */
 
-const { resolvePackageSurface, resolveWorkspaceModule } = require('./PackageResolver');
+const { resolvePackageSurface } = require('./PackageResolver');
 const { createVue2Config } = require('./VueConfig');
 const { configureSassAliases, createAssetResourceRule } = require('./Webpack');
 
@@ -15,5 +15,4 @@ module.exports = {
 	createAssetResourceRule: createAssetResourceRule,
 	createVue2Config: createVue2Config,
 	resolvePackageSurface: resolvePackageSurface,
-	resolveWorkspaceModule: resolveWorkspaceModule,
 };
