@@ -103,7 +103,15 @@ function configureSassAliases(config, sassPackageRoot) {
 		.set('@chalkysticks/sass/asset-resources', path.join(sassPackageRoot, 'build/asset-catalog-resource'))
 		.set('@chalkysticks/sass/assets', path.join(sassPackageRoot, 'build/asset'))
 		.set('@chalkysticks/sass/scss', path.join(sassPackageRoot, 'src/app'))
-		.set('@chalkysticks/sass/styles', path.join(sassPackageRoot, 'build/app.css'));
+		.set('@chalkysticks/sass/styles', path.join(sassPackageRoot, 'build/app.css'))
+
+		// Sass sources under src/app author their artwork URLs as `asset/...`,
+		// which only resolves once the package build has copied src/asset into
+		// build/. Consumers importing those sources directly instead of the
+		// compiled app.css would otherwise resolve the URLs against their own
+		// component directory. `src/app/ui/icon.scss` is the only file in the
+		// chain issuing bare `asset/` requests, so the alias cannot collide.
+		.set('asset', path.join(sassPackageRoot, 'build/asset'));
 }
 
 module.exports = {
